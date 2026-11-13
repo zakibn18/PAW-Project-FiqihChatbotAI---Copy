@@ -92,3 +92,37 @@ Fiqih-ChatbotAI/
 > *"Kami memilih metode Waterfall karena alur kerjanya linier dan terstruktur, sehingga spesifikasi sistem dapat dikunci di awal untuk mencegah pembesaran yang tidak diinginkan pada ruang lingkup."*
 
 Metode ini sangat tepat untuk proyek sistem tanya jawab hukum Islam (fikih), di mana batasan korpus rujukan fatwa, standarisasi validasi dalil, dan arsitektur API harus didefinisikan secara presisi sebelum tahap pengkodean dan integrasi model AI dilakukan.
+
+---
+
+## 🤖 Week 8 — AI Assistant (Google Gemini)
+
+Halaman: **`/chat`** · Endpoint: **`POST /api/chat`**
+
+```json
+// Request
+{ "message": "Bagaimana hukum zakat profesi?" }
+// Response
+{ "success": true, "data": { "reply": "...", "sources": [{ "judul": "...", "penulis": "..." }] } }
+```
+
+**Setup:** tambahkan ke `.env` (jangan di-commit)
+```
+GEMINI_API_KEY=isi_api_key
+GEMINI_MODEL=gemini-3.8-flash
+```
+
+**Struktur tambahan:** `config/gemini.js`, `services/geminiService.js`, `models/chatModel.js`, `middlewares/validateChatInput.js`, `controllers/chatController.js`, `routes/chat.js`, `views/chat.ejs`.
+
+**Guardrail (berlapis):** validasi pesan kosong/>500 karakter → deteksi prompt injection → gerbang relevansi topik → System Instruction (strict grounding) → penanganan error/timeout/respons kosong Gemini. API key hanya dipakai di backend.
+
+**Opsional — kutipan buku + halaman (sesuai PRD US-02):**
+```sql
+CREATE TABLE fatwa_chunk (
+  id SERIAL PRIMARY KEY,
+  sumber TEXT NOT NULL,   -- mis. 'FATWA KONTEMPORER JILID 1.pdf'
+  halaman INT NOT NULL,
+  isi TEXT NOT NULL
+);
+```
+Jika tabel ini ada dan terisi, Top-3 kutipan otomatis ikut dikirim sebagai context beserta nama sumber & halaman.
