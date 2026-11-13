@@ -1,0 +1,159 @@
+<%- include('partials/head', { judul: judul }) %>
+<%- include('partials/navbar') %>
+
+<main class="flex-1 px-3 sm:px-6 py-4 sm:py-8">
+  <div class="max-w-3xl mx-auto flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden" style="height: calc(100dvh - 9rem); min-height: 480px;">
+
+    <!-- Header chat -->
+    <div class="bg-scholar-900 text-white px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 class="font-bold text-base">Tanya Fiqih — AI Assistant</h1>
+        <p class="text-[11px] text-slate-300">Jawaban berdasar data aplikasi. Bukan fatwa resmi.</p>
+      </div>
+      <button id="btn-clear" type="button" class="text-xs bg-scholar-800 hover:bg-scholar-700 border border-scholar-700 px-3 py-1.5 rounded-lg transition">
+        Hapus Chat
+      </button>
+    </div>
+
+    <!-- Area percakapan -->
+    <div id="chat-log" class="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3 bg-slate-50" aria-live="polite"></div>
+
+    <!-- Pertanyaan cepat -->
+    <div id="chips" class="px-3 sm:px-4 py-2 bg-slate-50 border-t border-slate-200 flex gap-2 overflow-x-auto whitespace-nowrap">
+      <button type="button" class="chip text-xs px-3 py-1.5 rounded-full bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 transition">Apa saja buku yang tersedia?</button>
+      <button type="button" class="chip text-xs px-3 py-1.5 rounded-full bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 transition">Bagaimana hukum zakat profesi?</button>
+      <button type="button" class="chip text-xs px-3 py-1.5 rounded-full bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 transition">Bolehkah berwudhu dengan air yang disentuh wanita haid?</button>
+    </div>
+
+    <!-- Input -->
+    <form id="chat-form" class="p-3 border-t border-slate-200 bg-white">
+      <div class="flex items-end gap-2">
+        <textarea id="chat-input" rows="1" maxlength="<%= maxLength %>" placeholder="Ketik pertanyaan fiqih Anda..."
+          class="flex-1 resize-none text-sm border border-slate-300 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-emerald-500 outline-none max-h-32"></textarea>
+        <button id="btn-send" type="submit"
+          class="shrink-0 bg-emeraldFiqih-700 hover:bg-emeraldFiqih-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+          Kirim
+        </button>
+      </div>
+      <p class="mt-1 text-[11px] text-slate-400 flex justify-between">
+        <span>Enter = kirim, Shift+Enter = baris baru</span>
+        <span><span id="char-count">0</span>/<%= maxLength %></span>
+      </p>
+    </form>
+  </div>
+</main>
+
+<script>
+(function () {
+  const log = document.getElementById('chat-log');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('btn-send');
+  const count = document.getElementById('char-count');
+  const STORE_KEY = 'fiqihai-chat';
+  let history = [];
+  let busy = false;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  // Format ringan & aman: escape dulu, baru **tebal** dan baris baru
+  function fmt(s) {
+    return esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^*\n]+?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+  }
+
+  function bubble(m) {
+    const user = m.role === 'user';
+    const wrap = document.createElement('div');
+    wrap.className = 'flex ' + (user ? 'justify-end' : 'justify-start');
+    const box = document.createElement('div');
+    box.className = 'max-w-[85%] text-sm leading-relaxed px-3.5 py-2.5 rounded-2xl shadow-sm ' +
+      (user ? 'bg-emeraldFiqih-700 text-white rounded-br-sm'
+            : m.error ? 'bg-red-50 text-red-800 border border-red-200 rounded-bl-sm'
+            : 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm');
+    box.innerHTML = fmt(m.text);
+
+    if (m.sources && m.sources.length) {
+      const src = document.createElement('div');
+      src.className = 'mt-2 pt-2 border-t border-slate-200 text-[11px] text-slate-500';
+      src.innerHTML = '<p class="font-semibold text-slate-600 mb-0.5">Rujukan:</p><ul class="list-disc pl-4">' +
+        m.sources.map((s) => '<li>' + esc(s.judul) +
+          (s.halaman ? ' — hlm. ' + esc(s.halaman) : '') +
+          (s.penulis ? ' (' + esc(s.penulis) + ')' : '') + '</li>').join('') + '</ul>';
+      box.appendChild(src);
+    }
+    wrap.appendChild(box);
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function save() { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(history)); } catch (e) {} }
+  function add(m) { history.push(m); bubble(m); save(); }
+
+  function showLoading() {
+    const el = document.createElement('div');
+    el.id = 'loading';
+    el.className = 'flex justify-start';
+    el.innerHTML = '<div class="bg-white border border-slate-200 text-slate-500 text-sm px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-2">' +
+      '<span class="inline-block w-3.5 h-3.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></span>Memproses Pertanyaan...</div>';
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+  function hideLoading() { const el = document.getElementById('loading'); if (el) el.remove(); }
+
+  async function kirim(text) {
+    if (busy) return;
+    text = text.trim();
+    if (!text) { input.focus(); return; }
+    if (text.length > <%= maxLength %>) { add({ role: 'ai', error: true, text: 'Pesan terlalu panjang (maksimal <%= maxLength %> karakter).' }); return; }
+
+    busy = true; btn.disabled = true;
+    add({ role: 'user', text });
+    input.value = ''; count.textContent = '0'; autosize();
+    showLoading();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+      });
+      let json = null;
+      try { json = await res.json(); } catch (e) {}
+      hideLoading();
+      if (!res.ok || !json || !json.success) {
+        add({ role: 'ai', error: true, text: (json && json.message) || 'Terjadi kesalahan (HTTP ' + res.status + '). Coba lagi.' });
+      } else {
+        add({ role: 'ai', text: json.data.reply, sources: json.data.sources });
+      }
+    } catch (err) {
+      hideLoading();
+      add({ role: 'ai', error: true, text: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu coba lagi.' });
+    } finally {
+      busy = false; btn.disabled = false; input.focus();
+    }
+  }
+
+  function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 128) + 'px'; }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); kirim(input.value); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); kirim(input.value); }
+  });
+  input.addEventListener('input', () => { count.textContent = input.value.length; autosize(); });
+  document.querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => kirim(c.textContent)));
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    history = []; log.innerHTML = ''; save(); salam();
+  });
+
+  function salam() {
+    bubble({ role: 'ai', text: 'Assalamu\u2019alaikum. Saya FiqihAI. Silakan tanyakan persoalan fiqih kontemporer atau modul/buku rujukan yang tersedia di aplikasi ini.' });
+  }
+
+  // Muat riwayat sesi (hilang saat tab ditutup)
+  try { history = JSON.parse(sessionStorage.getItem(STORE_KEY) || '[]'); } catch (e) { history = []; }
+  if (history.length) history.forEach(bubble); else salam();
+})();
+</script>
+
+<%- include('partials/footer') %>
