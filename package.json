@@ -5,12 +5,15 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "models": "node scripts/listModels.js",
+    "import-pdf": "node scripts/importPdf.js"
   },
   "dependencies": {
     "dotenv": "^18.0.9",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.23.1"
   }
 }
