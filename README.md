@@ -1,4 +1,4 @@
-# fiqih_ai — Sistem Tanya Jawab & Rujukan Fiqih Kontemporer
+# FiqihAI — Sistem Tanya Jawab & Rujukan Fiqih Kontemporer
 
 > **Tugas Praktikum Pengembangan Aplikasi Web (PPAW) — Project Berkelanjutan (Week 7–8)**  
 > **Kelas:** E (Kelompok 4) · **Metode SDLC:** Waterfall  
@@ -8,7 +8,7 @@
 
 ## 📌 Deskripsi Proyek
 
-fiqih_ai adalah aplikasi web tanya jawab fiqih kontemporer. Pengguna bertanya lewat halaman chat, dan jawaban disusun oleh **Google Gemini** hanya dari data aplikasi: katalog modul di database dan kutipan buku (PDF karya Syekh Yusuf Al-Qaradhawi) yang sudah diimpor beserta **nama file dan nomor halaman**.
+FiqihAI adalah aplikasi web tanya jawab fiqih kontemporer. Pengguna bertanya lewat halaman chat, dan jawaban disusun oleh **Google Gemini** hanya dari data aplikasi: katalog modul di database dan kutipan buku (PDF karya Syekh Yusuf Al-Qaradhawi) yang sudah diimpor beserta **nama file dan nomor halaman**.
 
 | Week | Fitur |
 |---|---|
@@ -143,7 +143,7 @@ Frontend: tes juga indikator loading ("Memproses Pertanyaan…"), tampilan di HP
 
 | Endpoint | Method | Keterangan | Respon |
 |---|---|---|---|
-| `/` | GET | Halaman utama fiqih_ai | HTML |
+| `/` | GET | Halaman utama FiqihAI | HTML |
 | `/chat` | GET | Halaman AI Assistant | HTML |
 | `/api/chat` | POST | Kirim pertanyaan ke AI | JSON |
 | `/api/status` | GET | Status server, uptime, metadata | JSON |
