@@ -205,21 +205,6 @@ Fiqih-ChatbotAI/
 └── .env · .env.example
 ```
 
----
-
-## 🧯 Pemecahan Masalah
-
-| Gejala | Penyebab | Solusi |
-|---|---|---|
-| `Cannot find module 'pdf-parse'` | Dependensi belum terpasang | `npm install` |
-| `ECONNREFUSED` / `password authentication failed` | PostgreSQL belum jalan atau `.env` salah | Nyalakan PostgreSQL, cek `DB_*` di `.env` |
-| `relation "produk" does not exist` | Tabel katalog belum dibuat | Jalankan SQL di langkah 2 |
-| Chat: "Layanan AI menolak permintaan" | API key salah, atau model tidak tersedia (404) | Cek log `[Gemini] HTTP …`; jalankan `npm run models`, ganti `GEMINI_MODEL`, restart |
-| Chat: "Layanan AI sedang sibuk" | Gemini kelebihan permintaan (503) | Coba lagi; isi `GEMINI_FALLBACK_MODEL` |
-| Jawaban "informasi belum tersedia" | Isi buku tidak membahas topik tersebut | Tambah PDF yang relevan lalu `npm run import-pdf` |
-| Impor: "tidak ada teks terbaca" | PDF hasil scan | Lakukan OCR dulu |
-| Teks Arab di database acak | Keterbatasan ekstraksi PDF | Gunakan buku terjemahan Indonesia |
-| Perubahan `.env` tidak berpengaruh | Server belum di-restart | Hentikan (Ctrl+C) lalu `npm start` |
 
 ---
 
