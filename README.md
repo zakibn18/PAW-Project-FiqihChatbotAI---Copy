@@ -1,4 +1,4 @@
-# FiqihAI — Sistem Tanya Jawab & Rujukan Fiqih Kontemporer
+# fiqih_ai — Sistem Tanya Jawab & Rujukan Fiqih Kontemporer
 
 > **Tugas Praktikum Pengembangan Aplikasi Web (PPAW) — Project Berkelanjutan (Week 7–8)**  
 > **Kelas:** E (Kelompok 4) · **Metode SDLC:** Waterfall  
@@ -8,7 +8,7 @@
 
 ## 📌 Deskripsi Proyek
 
-FiqihAI adalah aplikasi web tanya jawab fiqih kontemporer. Pengguna bertanya lewat halaman chat, dan jawaban disusun oleh **Google Gemini** hanya dari data aplikasi: katalog modul di database dan kutipan buku (PDF karya Syekh Yusuf Al-Qaradhawi) yang sudah diimpor beserta **nama file dan nomor halaman**.
+fiqih_ai adalah aplikasi web tanya jawab fiqih kontemporer. Pengguna bertanya lewat halaman chat, dan jawaban disusun oleh **Google Gemini** hanya dari data aplikasi: katalog modul di database dan kutipan buku (PDF karya Syekh Yusuf Al-Qaradhawi) yang sudah diimpor beserta **nama file dan nomor halaman**.
 
 | Week | Fitur |
 |---|---|
@@ -37,9 +37,9 @@ npm install
 ```
 
 ### 2. Siapkan database PostgreSQL
-Buat database baru (misalnya `fiqihai`) lewat pgAdmin atau `psql`:
+Buat database baru (misalnya `fiqih_ai`) lewat pgAdmin atau `psql`:
 ```sql
-CREATE DATABASE fiqihai;
+CREATE DATABASE fiqih_ai;
 ```
 Lalu buat tabel katalog `produk` (sesuaikan jika tabel Anda sudah ada):
 ```sql
@@ -143,7 +143,7 @@ Frontend: tes juga indikator loading ("Memproses Pertanyaan…"), tampilan di HP
 
 | Endpoint | Method | Keterangan | Respon |
 |---|---|---|---|
-| `/` | GET | Halaman utama FiqihAI | HTML |
+| `/` | GET | Halaman utama fiqih_ai | HTML |
 | `/chat` | GET | Halaman AI Assistant | HTML |
 | `/api/chat` | POST | Kirim pertanyaan ke AI | JSON |
 | `/api/status` | GET | Status server, uptime, metadata | JSON |
