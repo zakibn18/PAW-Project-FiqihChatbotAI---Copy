@@ -62,7 +62,7 @@ Salin `.env.example` menjadi `.env`, lalu isi:
 # Database PostgreSQL
 DB_USER=postgres
 DB_HOST=localhost
-DB_NAME=fiqihai
+DB_NAME=fiqih_ai
 DB_PASSWORD=isi_password_anda
 DB_PORT=5432
 
